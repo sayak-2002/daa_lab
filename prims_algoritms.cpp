@@ -1,66 +1,92 @@
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
 using namespace std;
+# define INF 0x3f3f3f3f
 
-void init_code(){
-    #ifndef ONLINE_JUDGE
-    freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-    #endif 
+typedef pair<int, int> iPair;
+  
+class Graph
+{
+    int V;
+    list< pair<int, int> > *adj;
+  
+public:
+    Graph(int V); 
+    void addEdge(int u, int v, int w);
+    void primMST();
+};
+  
+Graph::Graph(int V)
+{
+    this->V = V;
+    adj = new list<iPair> [V];
 }
-
-bool compare(pair<int, int>& a, pair<int, int>& b){
-	return a.second<b.second;
+  
+void Graph::addEdge(int u, int v, int w)
+{
+    adj[u].push_back(make_pair(v, w));
+    adj[v].push_back(make_pair(u, w));
 }
-
-int main(){
-    init_code();
-
-    int n;
-    cin>>n;
-
-    vector<int> start;
-    vector<int> finish;
-
-    for(int i=0; i<n; i++){
-    	int x;
-    	cin>>x;
-    	start.push_back(x);
+void Graph::primMST()
+{
+    priority_queue< iPair, vector <iPair> , greater<iPair> > pq;
+  
+    int src = 0; 
+    vector<int> key(V, INF);
+    vector<int> parent(V, -1);
+  
+    vector<bool> inMST(V, false);
+  
+    pq.push(make_pair(0, src));
+    key[src] = 0;
+    while (!pq.empty())
+    {
+        int u = pq.top().second;
+        pq.pop();
+          
+          if(inMST[u] == true){
+            continue;
+        }
+        
+        inMST[u] = true;  
+        list< pair<int, int> >::iterator i;
+        for (i = adj[u].begin(); i != adj[u].end(); ++i)
+        {
+            int v = (*i).first;
+            int weight = (*i).second;
+            if (inMST[v] == false && key[v] > weight)
+            {
+                key[v] = weight;
+                pq.push(make_pair(key[v], v));
+                parent[v] = u;
+            }
+        }
     }
-
-    for(int i=0; i<n; i++){
-    	int x;
-    	cin>>x;
-    	finish.push_back(x);
-    }
-
-    vector<pair<int, int>> vp;
-
-    for(int i=0; i<n; i++){
-    	vp.push_back({start[i], finish[i]});
-    }
-
-    sort(vp.begin(), vp.end(), compare);
-
-    vector<pair<int, int>> tasks;
-
-
-    
-    int end = vp[0].second;
-    tasks.push_back(vp[0]);
-
-
-    for(int i=1; i<n; i++){
-    	if(vp[i].first > end){
-    		end = vp[i].second;
-    		tasks.push_back(vp[i]);
-    	}
-    }
-
-    for(int i=0; i<tasks.size(); i++){
-    	cout<<tasks[i].first<<" "<<tasks[i].second<<endl;
-    }
-    
-
-
-return 0;
+  
+    for (int i = 1; i < V; ++i)
+        printf("%d - %d\n", parent[i], i);
+}
+  
+int main()
+{
+    int V = 9;
+    Graph g(V);
+  
+    g.addEdge(0, 1, 4);
+    g.addEdge(0, 7, 8);
+    g.addEdge(1, 2, 8);
+    g.addEdge(1, 7, 11);
+    g.addEdge(2, 3, 7);
+    g.addEdge(2, 8, 2);
+    g.addEdge(2, 5, 4);
+    g.addEdge(3, 4, 9);
+    g.addEdge(3, 5, 14);
+    g.addEdge(4, 5, 10);
+    g.addEdge(5, 6, 2);
+    g.addEdge(6, 7, 1);
+    g.addEdge(6, 8, 6);
+    g.addEdge(7, 8, 7);
+  
+    g.primMST();
+  
+    return 0;
 }
